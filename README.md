@@ -143,7 +143,7 @@ black.c:
 echo "int main() { return 0; }" > blah.c
 
 # This line is the command associated with the blah.c target.
-# When this target is executed, it runs the echo command to create a simple C source file blah.c with a minimal main function.
+# When this target is executed, it runs the echo command to create a C source file blah.c with a minimal main function.
 ```
 
 ```makefile
@@ -264,7 +264,7 @@ These handy placeholders, like `$@` and `$<`, allow you to refer to specific ele
 
 These automatic variables simplify **Makefile** rules by allowing you to refer to specific elements of the rule without needing to explicitly name them. They enhance flexibility and maintainability in **Makefile** development.
 
-> ![NOTE]
+> [!NOTE]
 > *For more reference, check [Automatic Variables](https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html).*
 
 ### Wildcards
