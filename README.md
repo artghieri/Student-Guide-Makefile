@@ -136,34 +136,34 @@ When you run `make` in the terminal, it will build a program called **blah** in 
 ```makefile
 black.c:
 
-This line defines a target named blah.c. It's used to specify that the blah.c file should be generated.
+# This line defines a target named blah.c. It's used to specify that the blah.c file should be generated.
 ```
 
 ```makefile
 echo "int main() { return 0; }" > blah.c
 
-This line is the command associated with the blah.c target.
-When this target is executed, it runs the echo command to create a simple C source file blah.c with a minimal main function.
+# This line is the command associated with the blah.c target.
+# When this target is executed, it runs the echo command to create a simple C source file blah.c with a minimal main function.
 ```
 
 ```makefile
 blah.o: blah.c:
 
-This line defines a target named blah.o. It indicates that the blah.o object file depends on the blah.c source file.
+# This line defines a target named blah.o. It indicates that the blah.o object file depends on the blah.c source file.
 ```
 
 ```makefile
 cc -c blah.c -o blah.o
 
-This line is the command associated with the blah.o target.
-It compiles the blah.c source file into an object file blah.o using the cc compiler.
+# This line is the command associated with the blah.o target.
+# It compiles the blah.c source file into an object file blah.o using the cc compiler.
 ```
 
 ```makefile
 blah: blah.o:
 
-This line defines a target named blah, which depends on the blah.o target.
-It specifies the rule to build the final executable blah by linking the blah.o object file.
+# This line defines a target named blah, which depends on the blah.o target.
+# It specifies the rule to build the final executable blah by linking the blah.o object file.
 ```
 
 In summary, this is what happens when you run make:
@@ -200,6 +200,150 @@ This command ensures a clean and organized project directory, making it easier t
 > *Note: `rm -f some_file` is a Unix command that forcefully removes a file named "some_file" without asking for confirmation (-f flag ), even if the file is write-protected or doesn't exist.*
 
 ## Targets
+
+In **Make**, *Targets* are defined tasks in a **Makefile** representing specific build objectives. These objectives can include compiling source code, linking binaries, or other project-related actions. Make uses these targets to automate the build process by managing dependencies and executing tasks as efficiently as possible.
+
+### The All Target
+
+The `all` target in a **Makefile** is a special target used to build multiple components or perform various tasks with a single `make` command. It enhances the efficiency of the build process by specifying a list of other targets to be built.
+
+**Example:**  
+Suppose you have a C project with multiple source files, and you want to compile them into separate object files and then link them into an executable. Your Makefile might include an `all` target like this:
+
+```makefile
+all: program
+  
+program: main.o utils.o
+  gcc -o program main.o utils.o # To specify the output executable filename, append the filename with the -o flag.
+  
+main.o: main.c
+  gcc -c main.c
+  
+utils.o: utils.c
+  gcc -c utils.c
+  
+clean:
+  rm -f program *.o
+```
+
+In this example, running make all would build the **program** target, which depends on the **main.o** and **utils.o** targets. This compiles the source files, creates object files, and links them into an executable, all with a single command.
+
+> *Note: Since all is the first rule listed, it will run by default if make is called without specifying a target.*
+
+### Multiple Targets
+
+Multiple targets in a **Makefile** allow you to define and execute multiple build objectives or tasks within a single **Makefile**. They enable you to efficiently manage various components of a project's build process using a single `make` command.
+
+```makefile
+all: target1 target2
+
+target1:
+  # Build target1
+target2:
+  # Build target2
+```
+
+> *Note: In this example, running make all will execute both *target1* and *target2* in a single command.*
+
+## Automatic Variables and Wildcards
+
+**Automatic Variables** and **Wildcards** are powerful tools designed to simplify the build process and improve the readability of your rules.
+
+### Automatic Variables
+These handy placeholders, like `$@` and `$<`, allow you to refer to specific elements within rules. For example, `$@` represents the target, and `$<` represents the first prerequisite. Using these variables, you can create more flexible and understandable rules.
+
+**Here's a table summarizing some commonly used automatic variables in Makefiles:**
+
+| Automatic Variable   | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Represents&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Description&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |
+| :------------------: | ---------------------------------- | ---------------------------------------------------------------- |
+| `$@`                 | Target Name                        | The target of the rule, typically the file being generated.      |
+| `$<`                 | First prerequisite Name            | The first prerequisite (dependency) of the target.               |
+| `$^`                 | All prerequisites Names            | All the prerequisites (dependencies) of the target.              |
+| `$?`                 | Newer prerequisites than the Target| Prerequisites that are newer than the target.                    |
+| `$*`                 | Stem of the target and prerequisite| The stem shared between the target and prerequisite filenames.   |
+
+These automatic variables simplify **Makefile** rules by allowing you to refer to specific elements of the rule without needing to explicitly name them. They enhance flexibility and maintainability in **Makefile** development.
+
+> ![NOTE]
+> *For more reference, check [Automatic Variables](https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html).*
+
+### Wildcards
+When you need to work with multiple files matching a pattern, wildcards come to the rescue. For instance, `*.c` matches all `.c` files in a directory. This simplifies tasks like compiling or processing multiple source files without the need to list them individually in your Makefile.
+
+#### * Wildcard
+
+The **\* Wildcard** is a powerful tool for matching multiple files based on a specified pattern. It simplifies the process of working with a group of files that share a common characteristic, such as a specific file extension. The asterisk (*) acts as a placeholder that can represent any characters or no characters at all, making it a versatile tool for tasks like compiling or processing multiple source files simultaneously.
+
+I suggest that you always wrap it in the wildcard function, because otherwise you may fall into a common pitfall described below.
+
+```makefile
+# Print out file information about every .c file
+print: $(wildcard *.c)
+  ls -la  $?
+```
+
+```makefile
+wrong := *.o # Don't do this! '*' will not get expanded
+right := $(wildcard *.o)
+
+all: one two 
+
+# Fails, because $(wrong) is the string "*.o"
+one: $(wrong)
+
+# Works as you would expect! 
+two: $(right)
+
+```
+
+**Example:**  
+
+```makefile
+# Compile all .c files into executables
+all: $(wildcard *.c)
+
+%: %.c
+  gcc $< -o $@
+
+# Clean rule to remove executables
+clean:
+  rm -f a.out
+```
+
+In this example, the **\* Wildcard** matches all `.c` files in the directory and compiles them into executables with the same name as the source file.
+
+> *Note: * may not be directly used in a variable definitions.*  
+> *Note: * may be used in the target, prerequisites, or in the wildcard function.*
+
+#### % Wildcard
+
+In Makefiles, the **% Wildcard** is a versatile tool for pattern matching. It allows you to create generic rules that apply to multiple targets and prerequisites based on a pattern or template. This wildcard simplifies the process of defining rules for a group of files that share a common structure or naming convention.
+
+**Example:**  
+Consider a scenario where you have multiple source files with a common naming convention, such as file1.c, file2.c, and file3.c, and you want to compile each of them into separate executables. You can use the "%" wildcard to create a generic rule:
+
+```makefile
+# Compile all .c files into executables
+all: file1 file2 file3
+
+%: %.c
+  gcc $< -o $@
+```
+
+In this example, the **% Wildcard** matches the common naming pattern of `.c` files and allows you to compile them into executables with the same name as the source file (e.g., file1.c becomes file1). This simplifies the **Makefile** by avoiding the need to list each file individually in the rules.
+
+
+These features make your **Makefile** more powerful, maintainable, and efficient, particularly in projects with numerous files and dependencies.
+
+
+
+
+
+
+
+
+
+
 
 
 
