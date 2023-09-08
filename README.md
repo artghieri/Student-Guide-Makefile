@@ -201,7 +201,7 @@ This command ensures a clean and organized project directory, making it easier t
 
 ## Targets
 
-In **Make**, *Targets* are defined tasks in a **Makefile** representing specific build objectives. These objectives can include compiling source code, linking binaries, or other project-related actions. Make uses these targets to automate the build process by managing dependencies and executing tasks as efficiently as possible.
+In **Make**, *Targets* are defined tasks in a **Makefile** representing specific build objectives. These objectives can include compiling source code, linking binaries, or other project-related actions. **Make** uses these targets to automate the build process by managing dependencies and executing tasks as efficiently as possible.
 
 ### The All Target
 
@@ -256,10 +256,10 @@ These handy placeholders, like `$@` and `$<`, allow you to refer to specific ele
 
 | Automatic Variable   | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Represents&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Description&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; |
 | :------------------: | ---------------------------------- | ---------------------------------------------------------------- |
-| `$@`                 | Target Name                        | The target of the rule, typically the file being generated.      |
-| `$<`                 | First prerequisite Name            | The first prerequisite (dependency) of the target.               |
-| `$^`                 | All prerequisites Names            | All the prerequisites (dependencies) of the target.              |
-| `$?`                 | Newer prerequisites than the Target| Prerequisites that are newer than the target.                    |
+| `$@`                 | Target                             | The target of the rule, typically the file being generated.      |
+| `$<`                 | First prerequisite                 | The first prerequisite (dependency) of the target.               |
+| `$^`                 | All prerequisites                  | All the prerequisites (dependencies) of the target.              |
+| `$?`                 | Newer prerequisites                | Prerequisites that are newer than the target.                    |
 | `$*`                 | Stem of the target and prerequisite| The stem shared between the target and prerequisite filenames.   |
 
 These automatic variables simplify **Makefile** rules by allowing you to refer to specific elements of the rule without needing to explicitly name them. They enhance flexibility and maintainability in **Makefile** development.
