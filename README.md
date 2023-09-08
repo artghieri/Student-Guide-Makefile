@@ -174,18 +174,13 @@ In summary, this is what happens when you run make:
 
 This is just a simple example of using a Makefile. Take your time to fully understand it before proceeding to future topics.
 
-> *Note: cc: It's a command that invokes the C compiler.*  
-> *Note: -c: This flag tells the compiler to compile the source code into an object file without linking it to create an executable.*
+> *Note: cc It's a command that invokes the C compiler.*  
+> *Note: -c This flag tells the compiler to compile the source code into an object file without linking it to create an executable.*
 
 
 ### Make Clean
 
-Clean is often used as a target that ***removes the output*** of other targets, but it is not a special word in **Make**. You can `run make` and `make clean` on this to create and *delete some_file*.
-
-Note that **clean** is doing two new things here:
-
-- It's a *target* that is not first, and not a *prerequisite*. That means it'll never run unless you explicitly call `make clean`.
-- If you happen to have a file named **clean**, this target **won't run**. See `.PHONY` later in this tutorial on how to fix this.
+Clean is often used to remove temporary and build-related files for other targets in a project directory. In the following example, `make clean` is used to remove the build-related files created by the *some_file* target.
 
 ```makefile
 some_file: 
@@ -194,6 +189,15 @@ some_file:
 clean:
   rm -f some_file
 ```
+
+Note that **clean** is doing two new things here:
+
+- It's a *target* that is not first, and not a *prerequisite*. That means it'll never run unless you explicitly call `make clean`.
+- If you happen to have a file named **clean**, this target **won't run**. 
+
+This command ensures a clean and organized project directory, making it easier to maintain and debug your code.
+
+> *Note: `rm -f some_file` is a Unix command that forcefully removes a file named "some_file" without asking for confirmation (-f flag ), even if the file is write-protected or doesn't exist.*
 
 ## Targets
 
