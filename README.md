@@ -335,6 +335,389 @@ In this example, the **% Wildcard** matches the common naming pattern of `.c` fi
 
 These features make your **Makefile** more powerful, maintainable, and efficient, particularly in projects with numerous files and dependencies.
 
+## Fancy Rules
+
+Fancy Rules in **Makefiles** are advanced, customized rules that extend beyond basic functionality. These rules empower developers to automate specialized tasks by specifying precise steps and commands tailored to project requirements. In essence, Fancy Rules are a means for developers to craft highly customized and efficient build systems.
+
+### Implicit Rules
+
+While **Makefiles** offer built-in implicit rules for common tasks like compiling source code and linking binaries, developers often need to customize these rules to suit their project's unique requirements. In this context, *Fancy Rules* or custom rules become crucial. Here's a few examples of implicit rules:
+
+**Compile a C source file with dependencies listed in `$(INCLUDES)`:** 
+```makefile
+$(CC) -c $(CPPFLAGS) $(CFLAGS) $(INCLUDES) $^ -o $@
+```
+
+**Create a static library using `$(AR)` and custom archiver flags:**
+```makefile
+$(AR) $(ARFLAGS) $@ $^
+```
+
+#### Here's a reference table highlighting key Makefile variables for build configuration.
+
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Variable**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Description**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                                                 |
+|:----------------|:-------------------------------------------------------------|
+| **$(CC)**      | Specifies the C compiler to be used for compiling source code.                        |
+| **$(CXX)**     | Specifies the C++ compiler to be used for compiling C++ source code.                      |
+| **$(CPPFLAGS)**| Flags for the C/C++ preprocessor, such as include directories and macros.|
+| **$(CFLAGS)**  | Flags for the C compiler, including optimization settings.         |
+| **$(CXXFLAGS)**| Flags for the C++ compiler, including optimization settings.       |
+| **$(LDFLAGS)** | Flags for the linker, such as library directories and linker options.           |
+| **$(LDLIBS)**  | Libraries to link with during the linking process, e.g., '-lm' for the math library.     |
+| **$(AR)**      | Specifies the archiver used for creating static libraries. |
+| **$(ARFLAGS)** | Flags for the archiver, allowing customization of library creation.                                      |
+| **$(RM)**      | Specifies the command used to remove files, enabling cleanup operations.                       |
+| **$(MAKEFLAGS)**| Contains flags passed to Make during its execution, influencing its behavior.          |
+
+Let's now explore building a C program with the help of implicit rules. In this process, we'll demonstrate how these rules streamline source code compilation and linking.
+
+**Example: Implicit Rules and Variable Usage for C Project**  
+ This example highlights how implicit rules and variables can save time, enhance code reliability, and streamline development workflows.
+
+```makefile
+# Variables
+CC := gcc
+CFLAGS := -Wall -O2
+LDLIBS := -lm
+
+# Target and dependencies
+target: main.o math_functions.o
+
+# Implicit rule to build object files from C source files
+%.o: %.c
+  $(CC) $(CFLAGS) -c $< -o $@
+
+# Rule to build the final executable
+target: main.o math_functions.o
+  $(CC) $^ -o $@ $(LDLIBS)
+
+# Clean rule
+clean:
+  rm -f *.o target
+```
+
+In this example:
+
+- **CC** is set to the C compiler, `gcc`.
+- **CFLAGS** contains compilation flags.
+- **LDLIBS** contains libraries to link with (in this case, the math library `-lm`).
+
+The provided example showcases a Makefile for automating the build process of a C project. It defines rules and variables to compile source code into object files, link them to create an executable, and clean up generated files. 
+
+### Static Pattern Rules
+
+Static Pattern Rules in **Makefiles** allow you to define rules for building multiple target patterns from corresponding prerequisite patterns in a concise manner. These rules provide a powerful way to manage dependencies and automate the build process for similar files with distinct names.
+
+```makefile
+targets...: target-pattern: prerequisite-patterns...
+  recipe  
+```
+
+The essence is that the given ***target*** is matched by the ***target-pattern*** (via a `% wildcard`). Whatever was matched is called the stem. The stem is then substituted into the ***prereq-pattern***, to generate the target's prereqs.
+
+Here's an illustration of Static Pattern Rules in action:
+
+```makefile
+# Build all .o files from .c files in the src/ directory
+%.o: src/%.c
+  $(CC) -c $(CFLAGS) $< -o $@
+```
+
+In this example, the static pattern rule compiles all `.c` files in the `src/` directory into corresponding `.o` files using the specified compiler and flags.
+
+#### Static Pattern Rules and Filter
+
+Additionally, the ***filter*** function in **Makefiles** allows for efficient filtering and manipulation of lists. The ***filter*** function can be used in Static Pattern Rules to match the correct files. 
+
+```makefile
+# Build all .o files from corresponding .c files using Static Pattern Rules
+%.o: %.c
+  $(CC) -c $(CFLAGS) $< -o $@
+
+# Use the filter function to select specific source files
+sources := file1.c file2.c file3.cpp
+c_sources := $(filter %.c,$(sources))
+```
+
+> *Note: The Function Topic will be adressed later on this guide.*
+
+In this example, Static Pattern Rules simplify compiling `.c` files to `.o` files, the filter function selects only `.c` source files from a list of sources.
+
+### Pattern Rules
+
+Pattern rules provide a mechanism for automating build processes by defining generic rules for transforming files. They are essential for managing dependencies and streamlining compilation tasks.
+
+```makefile
+targets...: target-pattern: prerequisite-patterns...
+  recipe  
+```
+
+**Examples:**
+```makefile
+# Rule to compile all .c files into corresponding .o files
+%.o: %.c
+  $(CC) -c $(CFLAGS) $< -o $@
+```
+
+```makefile
+# Define a pattern rule that has no pattern in the prerequisites.
+# This just creates empty .c files when needed.
+%.c:
+  touch $@
+```
+> *Note: Pattern rules contain a '%' in the target.*
+
+The `%` matches any nonempty string, and the other characters match themselves. 
+
+### Double-Colon Rules
+
+Double-Colon Rules are rarely used, but provide a unique method for specifying multiple rules for a single target.
+
+```makefile
+targets... :: prerequisites...
+  recipe
+```
+
+**Examples:**
+```makefile
+all: blah
+
+blah::
+  echo "hello"
+blah::
+  echo "hello again"
+```
+
+```makefile
+# Double-Colon Rule for 'all' target with multiple prerequisites
+all:: hello_world.cpp main.cpp
+  g++ $^ -o $@
+```
+
+> *Note: In this example, the Double-Colon Rule all:: specifies that the all target can be built from both hello_world.cpp and main.cpp, allowing for separate recipes for each prerequisite.*
+
+## Commands and Execution
+
+Commands, specified as recipes, define how targets are built by executing a series of shell commands. These commands are responsible for building targets and managing dependencies. 
+
+#### Here's an example demonstrating how the *all* target would execute the following commands
+
+```makefile
+all: 
+  cd ..
+  # The cd above does not affect this line, because each command is effectively run in a new shell
+  echo `pwd`
+  
+  # This cd command affects the next because they are on the same line
+  cd ..;
+  echo `pwd`
+  
+  # Same as above
+  cd ..; \
+  echo `pwd`
+```
+
+The **default shell** in **Makefiles** refers to the command interpreter or shell environment used to execute recipes. It plays a important role in how recipes are interpreted and commands are executed during the build process. 
+
+The default shell is `/bin/sh`. You can change this by changing the variable SHELL:
+
+```makefile
+SHELL=/bin/bash
+
+cool:
+  echo "Hello from bash"
+```
+
+#### Command Echoing/Silencing
+
+Command Echoing/Silencing involves controlling whether the shell commands within recipe lines are displayed or hidden during execution. This feature is essential for aiding in debugging, and improving the clarity of output messages. 
+
+Simply add an `@` before a command to stop it from being printed.
+
+```makefile
+all: 
+  @echo "This make line will not be printed"
+  echo "But this will"
+```
+> *Note: You can also run make with -s to add an @ before each line.*
+
+#### Double Dollar Sign
+
+Double Dollar Signs `($$)` are used in **Makefiles** to escape a Single Dollar Sign `($)` when you want to include a literal dollar sign in a command or recipe without triggering variable expansion.
+
+For example, if you want to *echo a dollar sign* in a recipe, you would write it as `$$` to prevent Make from interpreting it as the start of a variable reference. Here's an example:
+
+```makefile
+my_target:
+  echo "This is a dollar sign: $$"
+```
+
+Note the differences between **Makefile Variables** and **Shell Variables** in this next example.
+
+```makefile
+# Make variable
+make_var = I am a make variable
+  
+all:
+  # Shell variable assignment and usage
+  sh_var="I am a shell variable"; \
+  echo $$sh_var
+  
+  # Make variable usage
+  echo $(make_var)
+```
+
+#### Error Handling
+
+In a **Makefile**, you can use several options to control error handling and the behavior of the make command. 
+
+Here are three common options: `-k`, `-i`, and `-`:
+
+#### Keep-Going (` -k `)
+
+```makefile
+# Allows make to continue building other targets even if one target encounters an error.
+# It reports errors at the end but doesn't halt the entire build process.
+
+make -k
+```
+
+#### Ignore-Errors (` -i `)
+```makefile
+# Instructs make to ignore errors entirely and continue building all targets, regardless of individual failures.
+make -i
+
+# It's often used with `-k` to suppress error messages.
+make  -ki
+```
+
+#### Just-Print (` - `)
+```makefile
+# Displays the commands that make would execute without actually running them.
+# Useful for previewing the build process without making any changes to the system.
+
+all: target
+
+target:
+  echo "Building target"
+  -false
+  echo "This will not be printed if - is used"
+```
+
+#### Interrupting or Killing Make
+If you `ctrl+c` make, it will delete the newer targets it just made.
+
+### Recursive Use of Make
+
+Recursive Use of Make refers to the practice of *invoking the make command* within a **Makefile** to build targets in subdirectories, effectively creating a hierarchical or recursive build system. This approach is particularly useful when you have a complex project with multiple subcomponents or when you want to manage dependencies and builds for different parts of a larger project independently.
+
+To implement recursive use of Make, you typically create a Makefile in each subdirectory, and the parent Makefile calls `make` in those subdirectories, passing along the appropriate targets and dependencies.
+
+Suppose you have a project structure like this:
+```css
+project/
+    Makefile (top-level Makefile)
+    subdirectory1/
+      Makefile
+      source1.c
+      source2.c
+    subdirectory2/
+      Makefile
+      source3.c
+      source4.c
+```
+
+In this scenario:
+
+ - The top-level Makefile may contain rules and dependencies that apply to the entire project.
+
+- Each subdirectory (`subdirectory1`, `subdirectory2`, etc.) has its own Makefile responsible for building targets within that directory.
+
+- The top-level **Makefile** calls `make` in each subdirectory, passing down the appropriate targets and dependencies.
+
+For instance, the top-level Makefile may include rules like:
+
+```makefile
+all:
+  $(MAKE) -C subdirectory1
+  $(MAKE) -C subdirectory2
+```
+
+This recursively invokes make in `subdirectory1` and `subdirectory2`, causing their respective **Makefiles** to be executed.
+
+#### Export and Environment 
+
+You can use the `export` directive to make variables available to child processes (e.g., sub-makes) or as environment variables for the commands executed in the recipes. This is useful when you need to pass variables to sub-makes or when you want to set environment variables for commands within a Makefile.
+
+#### Exporting Variables for Sub-Makes:
+To export variables so that they are available to sub-makes, you can use the export directive in your top-level Makefile:
+
+```makefile
+# Top-level Makefile
+
+# Export variables to sub-makes
+export VAR_NAME = value
+
+all:
+  $(MAKE) -C subdirectory
+```
+
+> *Note: In this example, `VAR_NAME` is exported, making it available to the sub-make executed in the `subdirectory`.*
+
+```makefile
+# Makefile
+
+# Variables
+VAR1 = Value1
+VAR2 = Value2
+VAR3 = Value3
+
+# Export all variables to the environment for sub-makes
+.EXPORT_ALL_VARIABLES:
+
+all: sub-make
+
+sub-make:
+  @$(MAKE) -C subdir
+```
+
+> *Note: `.EXPORT_ALL_VARIABLES` exports all variables for you.*
+
+#### Setting Environment Variables for Commands:
+
+Environment variables in Makefiles enable the configuration of build environments, making them a versatile tool for customizing compilation settings, controlling build behavior, and passing information to sub-makes.
+
+```makefile
+# Makefile
+
+# Setting an environment variable for the entire Makefile
+export MESSAGE = Hello, Make!
+
+all:
+  # Using the environment variable in a command
+  echo "$(MESSAGE)"
+```
+
+In this example:
+
+- We export an environment variable called `MESSAGE` with the value `"Hello, Make!"` to make it available to all commands within the Makefile.  
+- In the all target's recipe, we use `$(MESSAGE)` to access the value of the environment variable and print it using the `echo` command.
+
+Running make in this directory will execute the all target, which prints `"Hello, Make!"` as the output, demonstrating the use of environment variables in Makefiles.
+
+These techniques allow you to control the scope and availability of variables and environment settings within your Makefiles, which can be helpful for managing complex build processes.
+
+#### Arguments to Make
+
+When you run the make command, you can pass various [arguments and options](http://www.gnu.org/software/make/manual/make.html#Options-Summary)   to control the behavior of the build process. 
+
+```makefile
+make -f CustomMakefile -n main
+```
+
+> *Note: These arguments allow you to specify targets, override variables, and customize the build.*
+
+## Variables
 
 
 
@@ -346,14 +729,11 @@ These features make your **Makefile** more powerful, maintainable, and efficient
 
 
 
+## Conditionals
 
+## Functions
 
-
-
-
-
-
-
+## Other
 
 
 ---
