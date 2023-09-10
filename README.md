@@ -143,7 +143,7 @@ black.c:
 echo "int main() { return 0; }" > blah.c
 
 # This line is the command associated with the blah.c target.
-# When this target is executed, it runs the echo command to create a C source file blah.c with a main function.
+# When this is executed, it runs the echo command to create a C source file blah.c with a main function.
 ```
 
 ```makefile
@@ -573,9 +573,9 @@ all:
 
 In a **Makefile**, you can use several options to control error handling and the behavior of the make command. 
 
-Here are three common options: `-k`, `-i`, and `-`:
+Here are three common options: `-k (Keep-Going)`, `-i (Ignore-Errors)`, and `- (Just-Print)`:
 
-#### Keep-Going (` -k `)
+#### Keep-Going
 
 ```makefile
 # Allows make to continue building other targets even if one target encounters an error.
@@ -584,17 +584,17 @@ Here are three common options: `-k`, `-i`, and `-`:
 make -k
 ```
 
-#### Ignore-Errors (` -i `)
+#### Ignore-Errors
 ```makefile
 # Instructs make to ignore errors entirely and continue building all targets,
 # regardless of individual failures.
 make -i
 
 # It's often used with `-k` to suppress error messages.
-make  -ki
+make -ki or make -k -i
 ```
 
-#### Just-Print (` - `)
+#### Just-Print
 ```makefile
 # Displays the commands that make would execute without actually running them.
 # Useful for previewing the build process without making any changes to the system.
@@ -726,7 +726,7 @@ Variables are used to store values that can be referenced and manipulated throug
 
 In a Makefile, you can define variables using the following syntaxes:
 
-#### Recursive (=)
+#### Simply Expanded
 
 ```makefile
 VARIABLE_NAME = value
@@ -734,8 +734,7 @@ VARIABLE_NAME = value
 
 > *Note: Using = assigns the value with simple expansion, which means the value is expanded when it is used.*
 
-#### Simply Expanded (:=)
-
+#### Immediate Assignment
 ```makefile
 # Define variables
 CC := gcc
@@ -764,7 +763,7 @@ clean:
 
 You can think of this type of declaration as being used to define constant values (e.g., FLAGS, FILENAMES, etc) that remain unchanged throughout the execution of the Makefile.
 
-#### Conditional Assignment (?=)
+#### Conditional Assignment 
 
 ```makefile
 # Define a variable
@@ -780,7 +779,7 @@ all:
 
 > *Note: The ?= operator is used for conditional assignment, meaning it assigns a value to a variable only if the variable is not already defined.*
 
-#### Appending Values (+=)
+#### Appending Values
 
 ```makefile
 # Appending values to a variable
@@ -793,7 +792,7 @@ all:
 
 > *Note: Used to add values to an existing variable.*
 
-#### Removing Values (-=)
+#### Removing Values  
 
 ```makefile
 # Defining a variable with multiple values
