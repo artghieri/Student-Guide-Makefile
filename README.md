@@ -722,8 +722,199 @@ make -f CustomMakefile -n main
 
 ## Variables
 
+Variables are used to store values that can be referenced and manipulated throughout the Makefile. These variables make it easier to manage and customize your build or automation process by allowing you to define values once and reuse them in multiple places within your Makefile. 
 
+In a Makefile, you can define variables using the following syntaxes:
 
+#### Recursive (=)
+
+```makefile
+VARIABLE_NAME = value
+```
+
+> *Note: Using = assigns the value with simple expansion, which means the value is expanded when it is used.*
+
+#### Simply Expanded (:=)
+
+```makefile
+# Define variables
+CC := gcc
+CFLAGS := -Wall -O2
+SRC_FILES := main.c utils.c
+OBJ_FILES := $(SRC_FILES:.c=.o)
+TARGET := my_program
+
+# Default target
+all: $(TARGET)
+
+# Compile the target
+$(TARGET): $(OBJ_FILES)
+  $(CC) $(CFLAGS) -o $(TARGET) $(OBJ_FILES)
+
+# Compile individual source files
+%.o: %.c
+  $(CC) $(CFLAGS) -c $< -o $@
+
+# Clean up object files and the target executable
+clean:
+  rm -f $(OBJ_FILES) $(TARGET)
+```
+
+> *Note: Using := assigns the value with immediate expansion, which means the value is expanded at the point of assignment.*
+
+You can think of this type of declaration as being used to define constant values (e.g., FLAGS, FILENAMES, etc) that remain unchanged throughout the execution of the Makefile.
+
+#### Conditional Assignment (?=)
+
+```makefile
+# Define a variable
+MY_VARIABLE := existing_value
+
+# Since MY_VARIABLE is already defined, the assignment has no effect.
+MY_VARIABLE ?= new_value
+
+# Usage example
+all:
+  echo "My Variable: $(MY_VARIABLE)"
+```
+
+> *Note: The ?= operator is used for conditional assignment, meaning it assigns a value to a variable only if the variable is not already defined.*
+
+#### Appending Values (+=)
+
+```makefile
+# Appending values to a variable
+CFLAGS := -Wall  # -Wall
+CFLAGS += -O2    # -Wall -02
+
+all:
+  echo "Compiler Flags: $(CFLAGS)"
+```
+
+> *Note: Used to add values to an existing variable.*
+
+#### Removing Values (-=)
+
+```makefile
+# Defining a variable with multiple values
+SRC_FILES := main.c utils.c helper.c
+
+# Removing a value from the variable
+SRC_FILES -= helper.c
+
+all:
+  echo "Source Files: $(SRC_FILES)"
+```
+
+> *Note: Used to remove values to an existing variable.*
+
+### Command Line Arguments and Override
+
+**Command Line** arguments enable customization of variables and targets during execution, while the **override** directive ensures that specific variable values defined in the Makefile take precedence over any other assignments.
+
+#### Command Line
+
+Makefiles can accept command line arguments that allow you to modify variables or specify targets when invoking make.
+
+For example, suppose you have a Makefile with a variable `CC` that specifies the compiler:
+
+```makefile
+CC := gcc
+```
+
+You can override the value of `CC` by passing a command line argument:
+
+```makefile
+make CC = clang
+```
+
+#### Override Directive
+
+The `override` directive is used in a Makefile to force the assignment of a variable, even if it has already been defined elsewhere. 
+
+```makefile
+# Define a variable
+CC := gcc
+
+# Use the override directive to force the assignment
+override CC := clang
+```
+
+### Define
+
+The [define directive](https://www.gnu.org/software/make/manual/html_node/Multi_002dLine.html) is used to create multi-line variable values or macros. It allows you to define complex text blocks that can be reused throughout the Makefile. It's commonly used for defining [canned recipes](https://www.gnu.org/software/make/manual/html_node/Canned-Recipes.html#Canned-Recipes) and pairs effectively with the [eval function](https://www.gnu.org/software/make/manual/html_node/Eval-Function.html#Eval-Function) to enhance Makefile configurations for advanced build processes.
+
+```makefile
+define VARIABLE_NAME
+  # Multiline content goes here
+endef
+```
+
+#### Example:
+```makefile
+define compile_rule
+  $(CC) $(CFLAGS) -c $< -o $@
+endef
+
+CC := gcc
+CFLAGS := -Wall -O2
+SRC_FILES := main.c utils.c
+OBJ_FILES := $(SRC_FILES:.c=.o)
+
+all: my_program
+
+my_program: $(OBJ_FILES)
+  $(CC) $(CFLAGS) -o $@ $^
+
+%.o: %.c
+  $(compile_rule)
+
+clean:
+  rm -f $(OBJ_FILES) my_program
+```
+
+> *Note: In this example, the compile_rule is defined using define, and it contains the compilation command for C source files*
+
+### Target-Specific Variables
+
+Target-specific variables allow you to assign values to variables that are specific to particular targets or groups of targets. Target-specific variables are defined within the scope of a specific target rule and take precedence over global variable values when building that target.
+
+```makefile
+target: variable := value
+```
+
+```makefile
+CC := gcc
+CFLAGS := -Wall
+
+all: program1 program2
+
+program1: CC := clang
+program1: source1.c
+  $(CC) $(CFLAGS) -o $@ $^
+
+program2: source2.c
+  $(CC) $(CFLAGS) -o $@ $^
+```
+
+> *Note: In this example, we're assigning a different value to the CC variable for the program1 target, specifying that it should be compiled with the "clang" compiler, while program2 uses the global value of CC (e.g., "gcc").*
+
+### Pattern-Specific Variables
+
+Pattern-Specific Variables allow you to assign values to variables for a specific pattern of targets. These variables are defined using pattern rules (often involving wildcard characters like `%`) and are used to customize variable values based on a pattern match in the target or prerequisites.
+
+```makefile
+pattern%: variable := value
+```
+
+```makefile
+%.o: CFLAGS := -O2
+
+%.o: %.c
+  $(CC) $(CFLAGS) -o $@ $<
+```
+
+> *Note: n this example, the % sign in the pattern rule %.o matches any target ending with .o. We set a pattern-specific value for CFLAGS to enable optimization (-O2) for object files. When a target like main.o or utils.o is built, it will use the specified CFLAGS value for optimization.*
 
 ## Conditional Statements
 
