@@ -725,14 +725,161 @@ make -f CustomMakefile -n main
 
 
 
+## Conditional Statements
 
+Conditionals Statements in **GNU Make** allow you to define build rules and behaviors based on conditions or criteria. 
 
+Using directives such as `ifeq`, `ifneq`, `ifdef`, and `ifndef`, Makefiles can execute different commands or targets, adapting to specific build requirements. The basic syntax is as follows:
 
+```makefile
+ifeq (condition1, condition2)
+  # Commands to execute if condition1 equals condition2
+else
+  # Commands to execute if condition1 does not equal condition2
+endif
+```
 
+```makefile
+ifneq (condition1, condition2)
+  # Commands to execute if condition1 does not equal condition2
+else
+  # Commands to execute if condition1 equals condition2
+endif
+```
 
+```makefile
+ifdef variable
+  # Commands to execute if 'variable' is defined (not empty)
+else
+  # Commands to execute if 'variable' is not defined (empty)
+endif
+```
 
+```makefile
+ifndef variable
+  # Commands to execute if 'variable' is not defined (empty)
+else
+  # Commands to execute if 'variable' is defined (not empty)
+endif
+```
 
-## Conditionals
+Here's an example of using conditionals in a Makefile to set different compilation flags based on a condition:
+
+```makefile
+# Makefile
+
+# Compiler and flags
+CC = gcc
+CFLAGS = -Wall
+
+# Target
+TARGET = my_program
+
+# Conditional: Release build or Debug build
+BUILD_TYPE = Release
+
+ifeq ($(BUILD_TYPE), Release)
+  CFLAGS += -O2
+else ifeq ($(BUILD_TYPE), Debug)
+  CFLAGS += -g -O0
+else
+  $(error Invalid BUILD_TYPE: $(BUILD_TYPE))
+endif
+
+# Source files
+SOURCE = main.c utils.c
+
+# Build target
+$(TARGET): $(SOURCE)
+  $(CC) $(CFLAGS) -o $(TARGET) $(SOURCE)
+
+clean:
+  rm -f $(TARGET)
+```
+
+In this example:
+
+- The `BUILD_TYPE` variable is set to `"Release"`.
+
+- A conditional block checks the value of `BUILD_TYPE`. If it is `"Release"`, **optimization flags** are added to `CFLAGS;` if it is "`Debug"`, **debugging flags** are added; otherwise, an error is displayed.
+
+- The `$(TARGET)` rule compiles the program using the specified `CFLAGS` based on the `BUILD_TYPE`.
+
+### Check if A Variable is Empty
+
+In **GNU Make**, checking whether a string is empty or not is a common operation that can be useful in various situations within your Makefile. An empty string is one that contains no characters or is considered as whitespace-only.
+
+You can achieve this check using conditional statements such as `ifeq`, `ifneq`, `ifdef`, or `ifndef`, as shown in these examples:
+
+#### Checking Empty String With ifeq
+```makefile
+# Check if a variable is empty
+ifeq ($(variable),)
+  # Variable is empty, execute commands
+  @echo "Variable is empty"
+else
+  # Variable is not empty, execute other commands
+  @echo "Variable is not empty: $(variable)"
+endif
+```
+
+#### Checking Empty String With ifdef
+```makefile
+# Define a variable
+my_variable := 
+
+# Check if the variable is defined (not empty)
+ifdef my_variable
+  # Variable is defined and not empty, execute commands
+  @echo "my_variable is defined and not empty: $(my_variable)"
+else
+  # Variable is not defined or empty, execute other commands
+  @echo "my_variable is not defined or is empty"
+endif
+```
+
+You can also combine the conditional statements with the `$(strip)` function or other string manipulation functions. 
+
+```makefile
+# Check if a variable is empty
+ifeq ($(strip $(variable)),)
+  # Variable is empty, execute commands
+  @echo "Variable is empty"
+else
+  # Variable is not empty, execute other commands
+  @echo "Variable is not empty: $(variable)"
+endif
+```
+
+> *Note: The strip function is used to remove leading and trailing whitespace characters from the value of the variable.*
+
+```makefile
+# Define a variable with leading and trailing whitespace
+my_variable :=     This is some text with spaces    
+
+# Use the 'strip' function to remove leading and trailing whitespace
+stripped_variable := $(strip $(my_variable))
+
+Original Variable: '    This is some text with spaces    '
+Stripped Variable: 'This is some text with spaces'
+```
+
+### $(MAKEFLAGS)
+
+In **GNU Make**, `$(MAKEFLAGS)` is a variable that allows you to access the value of the **MAKEFLAGS** environment variable within your **Makefile**. The **MAKEFLAGS** environment variable contains a set of flags and options that were passed to the make command when it was invoked.
+
+```makefile
+my_target:
+  ifneq (,$(findstring -i, $(MAKEFLAGS)))
+    @echo "Ignore errors (-i) flag is enabled."
+    # Add rules or commands for when the -i flag is enabled
+  else
+    @echo "Ignore errors (-i) flag is not enabled."
+    # Add rules or commands for when the -i flag is not enabled
+  endif
+```
+
+> *Note: In this example, we check for the presence of the `-i` (ignore errors) flag in the `$(MAKEFLAGS)` variable within a Makefile.*
 
 ## Functions
 
