@@ -1059,19 +1059,363 @@ Stripped Variable: 'This is some text with spaces'
 In **GNU Make**, `$(MAKEFLAGS)` is a variable that allows you to access the value of the **MAKEFLAGS** environment variable within your **Makefile**. The **MAKEFLAGS** environment variable contains a set of flags and options that were passed to the make command when it was invoked.
 
 ```makefile
+MAKEFLAGS = -i
+
 my_target:
-  ifneq (,$(findstring -i, $(MAKEFLAGS)))
-    @echo "Ignore errors (-i) flag is enabled."
-    # Add rules or commands for when the -i flag is enabled
-  else
-    @echo "Ignore errors (-i) flag is not enabled."
-    # Add rules or commands for when the -i flag is not enabled
-  endif
+ifeq (,-$(findstring -i,$(MAKEFLAGS)))
+  @echo "Ignore errors (-i) flag is not enabled."
+  # Add rules or commands for when the -i flag is not enabled
+else
+  @echo "Ignore errors (-i) flag is enabled."
+  # Add rules or commands for when the -i flag is enabled
+endif
 ```
 
 > *Note: In this example, we check for the presence of the `-i` (ignore errors) flag in the `$(MAKEFLAGS)` variable within a Makefile.*
 
 ## Functions
+
+Makefile functions, key for automation, streamline text manipulation and conditional operations. These powerful tools enhance efficiency in managing complex projects, offering essential flexibility in the build process.
+
+#### Syntax
+
+In Makefiles, functions are invoked using the `$()` notation, followed by the name of the function and its arguments, enclosed within parentheses. The basic syntax for invoking a function is as follows:
+
+```makefile
+$(function_name argument1 argument2 ...)
+```
+
+Here's a breakdown of the syntax components:
+
+- **function_name:** The name of the function you want to use.
+- **argument1, argument2, and so on:** Arguments or parameters passed to the function. The number and type of arguments depend on the specific function being used.
+
+#### Practical Example
+
+In the following example, we illustrate the effective use of custom functions alongside built-in ones, allowing for dynamic compiler flag assignment based on source file conditions. This technique enhances code compilation control within the build process.
+
+```makefile
+# List of source files
+SRC_FILES := file1.c file2.c file3.c
+
+# Function to generate object file names
+obj_files = $(patsubst %.c, %.o, $(1))
+
+# Generate object file names from source files
+OBJ_FILES := $(call obj_files, $(SRC_FILES))
+
+# Custom function to determine compiler flags for specific files
+define get_compiler_flags
+ifeq ($(findstring file1.c,$(1)),file1.c)
+  FLAGS := -Wall -O2
+else
+  FLAGS := -Wall -O0
+endif
+endef
+
+# Compiler
+CC := gcc
+
+# Target for the final executable
+TARGET := my_program
+
+all: $(TARGET)
+
+$(TARGET): $(OBJ_FILES)
+  $(CC) $(FLAGS) -o $@ $^
+
+%.o: %.c
+  $(call get_compiler_flags, $<)
+  $(CC) $(FLAGS) -c -o $@ $<
+
+clean:
+  rm -f $(OBJ_FILES) $(TARGET)
+
+# A custom function named get_compiler_flagsis defined using the define keyword.
+# This function takes a file name as an argument and sets the FLAGS variable with \
+compiler flags based on whether the file name contains file1.c.
+# If it does, it sets -Wall -O2 as flags; otherwise, it sets -Wall -O0 as flags.
+```
+
+#### Commonly Used Makefile Functions
+
+| Function                 | Description                                                             |
+| -------------------------| ----------------------------------------------------------------------- |
+| **$(wildcard pattern)**  | Returns a list of file names matching the specified pattern.           |
+| **$(patsubst pattern,replacement,text)** | Replaces occurrences of `pattern` with `replacement` in `text`.   |
+| **$(foreach var,list,text)** | Evaluates `text` with `var` successively set to each item in `list`.   |
+| **$(if condition,true-action[,false-action])** | Evaluates `condition` and executes `true-action` if true; otherwise, `false-action`. |
+| **$(shell command)**     | Executes the shell command and returns its output as a string.        |
+| **$(call function,args...)** | Calls a custom Makefile function with the specified arguments.         |
+| **$(addprefix prefix,names...)** | Adds `prefix` to each word in `names`.                                |
+| **$(strip string)**      | Removes leading and trailing whitespace from `string`.               |
+| **$(filter pattern,names...)** | Returns a list of words that match the specified `pattern`.         |
+| **$(firstword names...)** | Returns the first word from `names`.                                    |
+
+> *Note: For more reference about functions, check [Functions for Transforming Text](https://www.gnu.org/software/make/manual/html_node/Functions.html)*
+
+#### Error Handling in Functions
+
+Error handling is a critical aspect of Makefiles, ensuring the reliability and robustness of the build process. It involves the identification, reporting, and management of issues that may arise during compilation and execution.
+
+In Makefiles, error handling often involves using the $(error ...) function to generate an error message and halt the build process when a certain condition is met. The syntax is as follows:
+
+```makefile
+$(error error_message)
+```
+
+#### Example of Error Handling in Makefiles:
+
+```makefile
+# Check if a required dependency exists
+ifeq (,$(wildcard dependency_file.txt))
+  $(error Dependency 'dependency_file.txt' not found. Please install it.)
+endif
+
+# Compiler and compiler flags
+CC := gcc
+CFLAGS := -Wall -O2
+
+# Target for the final executable
+TARGET := my_program
+
+all: $(TARGET)
+
+$(TARGET): main.c
+	$(CC) $(CFLAGS) -o $@ $^
+
+clean:
+	rm -f $(TARGET)
+```
+
+In this example:
+
+- We use `ifeq` to check if the `dependency_file.txt` exists using the `$(wildcard)` function.
+- If the file is not found, we use `$(error ...)` to display an error message.
+- The build process stops at this point, and the specified error message is printed.
+- If the file exists, the build continues as usual.
+- 
+This demonstrates how error handling in Makefiles can be used to check for prerequisites or conditions and handle errors when they occur.
+
+#### Performance Considerations in Makefile Functions
+
+Optimizing the performance of Makefile functions is crucial for efficient build systems. Making the right choices in how you design and use functions can significantly impact the speed and resource usage of your build process. 
+
+Performance considerations within Makefile functions primarily involve optimizing the way functions are defined and called.
+
+#### Example of Performance Considerations in Makefile Functions:
+
+Let's consider an example where we need to apply a function repeatedly to a large list of files, which can be a performance bottleneck if not handled efficiently. In this case, we'll demonstrate how to use the `$(foreach)` function optimally to avoid unnecessary overhead:
+
+```makefile
+# List of source files
+SRC_FILES := file1.c file2.c file3.c ... (a large list of files)
+
+# Function to generate object file names
+obj_files = $(patsubst %.c, %.o, $(1))
+
+# Generate object file names from source files
+OBJ_FILES := $(call obj_files, $(SRC_FILES))
+```
+
+In this example:
+
+- Instead of using multiple `$(call obj_files, ...)` calls for each source file, we utilize the `$(foreach)` function to apply `$(call obj_files, ...)` to the entire list of `SRC_FILES`.
+- This optimization avoids repeated function calls and improves the overall performance, especially when dealing with a large number of files.
+
+Performance considerations like this can make a substantial difference in the efficiency of your Makefile functions, ultimately resulting in faster and more streamlined build processes.
+
+### String Substitution
+
+String substitution allows you to manipulate and transform text within your build rules and variable assignments. This versatile technique involves replacing specific substrings or characters with new values in text. String substitution is essential for tasks like renaming files, modifying compiler flags, or customizing build configurations.
+
+Among these, the `$(patsubst)` function stands out as a powerful tool for replacing patterns with desired values in a given text. To explore other String Substitution Functions, refer to the [GNU documentation](https://www.gnu.org/software/make/manual/html_node/Text-Functions.html#Text-Functions).
+
+#### Syntax of $(patsubst)Function:
+
+```makefile
+$(patsubst pattern, replacement, text)
+```
+
+#### Example of $(patsubst) Function:
+
+Here's an example of how to use the `$(patsubst)` function in a Makefile to replace file extensions:
+
+```makefile
+# List of source files with .c extensions
+SRC_FILES := file1.c file2.c file3.c
+
+# Use $(patsubst) to replace .c with .o for object files
+OBJ_FILES := $(patsubst %.c, %.o, $(SRC_FILES))
+
+# Print the list of object files
+all:
+  @echo "Source Files: $(SRC_FILES)"
+  @echo "Object Files: $(OBJ_FILES)"
+
+# We use the $(patsubst) function to replace the .c extension with .o to obtain the list of object files (OBJ_FILES).
+```
+
+When you run `make`, it will display the following output:
+
+```makefile
+Source Files: file1.c file2.c file3.c
+Object Files: file1.o file2.o file3.o
+```
+
+### Iterating with $(foreach)
+
+The `$(foreach)` function is a versatile tool that allows you to iterate over elements in a list and perform operations on each element. It is particularly useful for automating repetitive tasks within the build process. 
+
+```makefile
+$(foreach var, list, text)
+```
+
+- **var:** The variable that takes on each value from the list in each iteration.
+- **list:** The list of values that var iterates over.
+- **text:** The operations or text to be performed or generated for each var.
+
+#### Example of the $(foreach) Function:
+
+Here's an example of how to use the `$(foreach)` function in a Makefile to create a list of targets:
+
+```makefile
+# List of source files
+SRC_FILES := file1.c file2.c file3.c
+
+# Use $(foreach) to generate a list of targets
+TARGETS := $(foreach src, $(SRC_FILES), $(basename $(src)))
+
+# Print the list of targets
+all:
+  @echo "Source Files: $(SRC_FILES)"
+  @echo "Generated Targets: $(TARGETS)"
+
+# We use the $(foreach) function to iterate over each source file (src) in SRC_FILES.
+# Inside the iteration, we use $(basename) to remove the file extension from each source file \
+and generate a list of target names (TARGETS).
+```
+
+When you run make, it will display the following output:
+
+```makefile
+Source Files: file1.c file2.c file3.c
+Generated Targets: file1 file2 file3
+```
+
+### Conditional Logic with $(if)
+
+The `$(if)` function provides conditional evaluation, allowing you to make decisions and perform actions based on whether a condition is true or false. 
+
+```makefile
+$(if condition, true-action, false-action)
+```
+- **condition:** The condition to evaluate.
+- **true-action:** The action or value to be returned if condition is true.
+- **false-action:** (Optional) The action or value to be returned if condition is false.
+
+#### Example of the $(if) Function:
+
+Here's an example of how to use the $(if) function in a Makefile to conditionally set a variable:
+
+```makefile
+# Condition: Is optimization enabled?
+OPTIMIZE := yes
+
+# Use $(if) to conditionally set the compiler flags variable
+CFLAGS := $(if $(filter $(OPTIMIZE), yes), -O2 -Wall, -O0 -Wall)
+
+# Print the selected compiler flags
+all:
+  @echo "Optimization: $(OPTIMIZE)"
+  @echo "Compiler Flags: $(CFLAGS)"
+
+# We use the $(if) function to check the condition $(filter $(OPTIMIZE), yes).
+# If the condition is true (i.e., if OPTIMIZE is equal to "yes"), it sets CFLAGS to -O2 -Wall. 
+```
+
+When you run `make`, it will display the following output:
+
+```makefile
+Optimization: yes
+Compiler Flags: -O2 -Wall
+```
+
+### Creating Custom Functions with $(call)
+
+The `$(call)` function allows you to create and invoke custom functions within your build process. It offers the flexibility to define reusable operations and dynamically generate text or perform tasks based on variable arguments. 
+
+```makefile
+$(call function, args...)
+```
+
+#### Example of the $(call) Function:
+
+Here's an example of how to use the `$(call)` function in a Makefile to create and invoke a custom function that calculates the sum of numbers in a list:
+
+```makefile
+# Custom function to calculate the sum of numbers in a list
+define sum
+  $(eval result := 0)
+  $(foreach num,$1,$(eval result := $(result) + $(num)))
+endef
+
+# Define a list of numbers
+NUMBERS := 1 2 3 4 5
+
+# Invoke the custom function to calculate the sum of numbers
+$(call sum,$(NUMBERS))
+
+# Print the result
+all:
+  @echo "Numbers: $(NUMBERS)"
+  @echo "Sum: $(result)"
+
+# The $(eval) function is used to update the result variable with the sum.
+# We invoke the custom function sum using $(call sum,$(NUMBERS)) to calculate the sum of the numbers in the list.
+```
+
+When you run `make`, it will display the following output:
+
+```makefile
+Numbers: 1 2 3 4 5
+Sum: 15
+```
+
+### Running Shell Commands with $(shell)
+
+The `$(shell)` function enables you to execute shell commands from within your Makefile rules and capture their output as variables. This functionality allows you to incorporate external commands seamlessly into your build process, making it easier to obtain information or perform tasks that require interaction with the underlying system. 
+
+```makefile
+$(shell command)
+```
+
+#### Example of the $(shell) Function:
+
+Here's an example of how to use the `$(shell)` function in a Makefile to capture the output of a shell command:
+
+```makefile
+# Define a shell command to get the current date
+DATE_COMMAND := date +%Y-%m-%d
+
+# Use the $(shell) function to execute the command and store the output
+CURRENT_DATE := $(shell $(DATE_COMMAND))
+
+# Print the current date
+all:
+	@echo "Current Date: $(CURRENT_DATE)"
+
+# We define a variable DATE_COMMAND that contains a shell command to retrieve the current date in the "YYYY-MM-DD" format.
+# We use the $(shell) function to execute the $(DATE_COMMAND) command and capture its output in the CURRENT_DATE variable.
+```
+
+When you run `make`, it will display the following output:
+
+```makefile
+Current Date: 2023-09-11
+```
+
+> *Note: The specific date will depend on when you run the make command.*
 
 ## Other
 
