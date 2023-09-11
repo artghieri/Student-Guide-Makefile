@@ -1132,7 +1132,7 @@ clean:
   rm -f $(OBJ_FILES) $(TARGET)
 
 # A custom function named get_compiler_flagsis defined using the define keyword.
-# This function takes a file name as an argument and sets the FLAGS variable with \
+# This function takes a file name as an argument and sets the FLAGS variable with 
 compiler flags based on whether the file name contains file1.c.
 # If it does, it sets -Wall -O2 as flags; otherwise, it sets -Wall -O0 as flags.
 ```
@@ -1231,13 +1231,13 @@ String substitution allows you to manipulate and transform text within your buil
 
 Among these, the `$(patsubst)` function stands out as a powerful tool for replacing patterns with desired values in a given text. To explore other String Substitution Functions, refer to the [GNU documentation](https://www.gnu.org/software/make/manual/html_node/Text-Functions.html#Text-Functions).
 
-#### Syntax of $(patsubst)Function:
+#### Syntax
 
 ```makefile
 $(patsubst pattern, replacement, text)
 ```
 
-#### Example of $(patsubst) Function:
+#### Example:
 
 Here's an example of how to use the `$(patsubst)` function in a Makefile to replace file extensions:
 
@@ -1253,7 +1253,8 @@ all:
   @echo "Source Files: $(SRC_FILES)"
   @echo "Object Files: $(OBJ_FILES)"
 
-# We use the $(patsubst) function to replace the .c extension with .o to obtain the list of object files (OBJ_FILES).
+# We use the $(patsubst) function to replace the .c extension with .o
+to obtain the list of object files (OBJ_FILES).
 ```
 
 When you run `make`, it will display the following output:
@@ -1275,7 +1276,7 @@ $(foreach var, list, text)
 - **list:** The list of values that var iterates over.
 - **text:** The operations or text to be performed or generated for each var.
 
-#### Example of the $(foreach) Function:
+#### Example:
 
 Here's an example of how to use the `$(foreach)` function in a Makefile to create a list of targets:
 
@@ -1292,7 +1293,7 @@ all:
   @echo "Generated Targets: $(TARGETS)"
 
 # We use the $(foreach) function to iterate over each source file (src) in SRC_FILES.
-# Inside the iteration, we use $(basename) to remove the file extension from each source file \
+# Inside the iteration, we use $(basename) to remove the file extension from each source file 
 and generate a list of target names (TARGETS).
 ```
 
@@ -1314,7 +1315,7 @@ $(if condition, true-action, false-action)
 - **true-action:** The action or value to be returned if condition is true.
 - **false-action:** (Optional) The action or value to be returned if condition is false.
 
-#### Example of the $(if) Function:
+#### Example:
 
 Here's an example of how to use the $(if) function in a Makefile to conditionally set a variable:
 
@@ -1349,7 +1350,7 @@ The `$(call)` function allows you to create and invoke custom functions within y
 $(call function, args...)
 ```
 
-#### Example of the $(call) Function:
+#### Example:
 
 Here's an example of how to use the `$(call)` function in a Makefile to create and invoke a custom function that calculates the sum of numbers in a list:
 
@@ -1372,7 +1373,7 @@ all:
   @echo "Sum: $(result)"
 
 # The $(eval) function is used to update the result variable with the sum.
-# We invoke the custom function sum using $(call sum,$(NUMBERS)) to calculate the sum of the numbers in the list.
+# We invoke the custom function sum to calculate the sum of the numbers in the list.
 ```
 
 When you run `make`, it will display the following output:
@@ -1390,7 +1391,7 @@ The `$(shell)` function enables you to execute shell commands from within your M
 $(shell command)
 ```
 
-#### Example of the $(shell) Function:
+#### Example:
 
 Here's an example of how to use the `$(shell)` function in a Makefile to capture the output of a shell command:
 
@@ -1405,8 +1406,11 @@ CURRENT_DATE := $(shell $(DATE_COMMAND))
 all:
 	@echo "Current Date: $(CURRENT_DATE)"
 
-# We define a variable DATE_COMMAND that contains a shell command to retrieve the current date in the "YYYY-MM-DD" format.
-# We use the $(shell) function to execute the $(DATE_COMMAND) command and capture its output in the CURRENT_DATE variable.
+# We define a variable DATE_COMMAND that contains a shell command 
+to retrieve the current date in the "YYYY-MM-DD" format.
+
+# We use the $(shell) function to execute the $(DATE_COMMAND) command 
+and capture its output in the CURRENT_DATE variable.
 ```
 
 When you run `make`, it will display the following output:
@@ -1419,6 +1423,171 @@ Current Date: 2023-09-11
 
 ## Other
 
+#### INCLUDE
+
+The include directive tells make to read one or more other makefiles. It enables code modularity, simplifies maintenance, and facilitates the integration of external configurations, making complex projects more manageable.
+
+```makefile
+include filename
+```
+
+When you include a Makefile, its rules, variables, and targets become part of the current Makefile, allowing you to reuse code and settings across multiple parts of your project's build system.
+
+#### VPATH
+
+VPATH to specify where some set of prerequisites exist. It allows you to specify directories where Make should search for prerequisites when building targets. 
+
+```makefile
+VPATH := dir1:dir2:dir3
+
+# dir1, dir2, dir3, etc.: Directories where Make should search for source files and prerequisites.
+```
+
+#### Example:
+
+```makefile
+# Define VPATH to specify source file directories
+VPATH := src:lib
+
+# Compile all .c files into object files
+%.o: %.c
+	gcc -c $(addprefix $(VPATH)/,$<) -o $@
+	
+# Build the final executable
+my_program: main.o util.o
+	gcc $^ -o $@
+	
+clean:
+	rm -f *.o my_program
+
+# We use VPATH to specify that Make should search for source files in the src and lib directories.
+```
+
+VPATH simplifies locating source files, ensuring that Make can find them regardless of their location in the specified directories.
+
+#### MULTILINE
+
+The backslash ( \\ ) character gives us the ability to use multiple lines when the commands are too long.
+
+```makefile
+my_target:
+	echo "This line is too long, so \
+	it is broken up into multiple lines"
+```
+
+#### .PHONY
+
+.PHONY targets serve a special purpose: they don't represent files to be built, but rather actions or commands to be executed unconditionally. These targets are useful for defining tasks that don't result in the creation of output files, such as cleaning, testing, or documentation generation.
+
+```makefile
+.PHONY: target_name
+```
+
+#### Example:
+
+```makefile
+.PHONY: clean test doc
+
+# Clean target: Remove object files and executables
+clean:
+	rm -f *.o my_program
+
+# Test target: Run unit tests
+test:
+	./run_tests.sh
+
+# Documentation target: Generate documentation
+doc:
+	doxygen Doxyfile
+```
+
+By marking these targets as `.PHONY`, you ensure that Make will always execute the associated actions, even if files with the same names as the targets exist in the directory. 
+
+#### .DELETE_ON_ERROR
+
+The `.DELETE_ON_ERROR` special target serves a specific purpose: it ensures that if any command in a recipe (a set of commands executed for a target) fails (returns a non-zero exit status), Make will delete the target file rather than leaving it in an undefined or partially updated state.
+
+To use the `.DELETE_ON_ERROR` special target in a Makefile, you don't need to specify any additional syntax. Simply add the following line to your Makefile:
+
+```makefile
+.DELETE_ON_ERROR:
+```
+
+#### Example:
+
+```makefile
+# Ensure that the .DELETE_ON_ERROR target is active
+.DELETE_ON_ERROR:
+
+# Rule to compile a C source file into an object file
+%.o: %.c
+	gcc -c $< -o $@
+	
+	# Rule to build the final executable
+my_program: main.o util.o
+	gcc $^ -o $@
+	
+clean:
+	rm -f *.o my_program
+```
+
+With `.DELETE_ON_ERROR` enabled, if the compilation of any `.c` file fails (e.g., due to a syntax error), Make will delete the corresponding `.o` file to ensure that the build remains in a consistent state. This can help prevent issues where a partially updated target could lead to unexpected behavior.
+
+#### MAKEFILE COOKBOOK
+
+```makefile
+# Thanks to Job Vranish (https://spin.atomicobject.com/2016/08/26/makefile-c-projects/)
+TARGET_EXEC := final_program
+
+BUILD_DIR := ./build
+SRC_DIRS := ./src
+
+# Find all the C and C++ files we want to compile
+# Note the single quotes around the * expressions. 
+# The shell will incorrectly expand these otherwise, but we want to send the * directly to the find command.
+SRCS := $(shell find $(SRC_DIRS) -name '*.cpp' -or -name '*.c' -or -name '*.s')
+
+# Prepends BUILD_DIR and appends .o to every src file
+# As an example, ./your_dir/hello.cpp turns into ./build/./your_dir/hello.cpp.o
+OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
+
+# String substitution (suffix version without %).
+# As an example, ./build/hello.cpp.o turns into ./build/hello.cpp.d
+DEPS := $(OBJS:.o=.d)
+
+# Every folder in ./src will need to be passed to GCC so that it can find header files
+INC_DIRS := $(shell find $(SRC_DIRS) -type d)
+# Add a prefix to INC_DIRS. So moduleA would become -ImoduleA. GCC understands this -I flag
+INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+
+# The -MMD and -MP flags together generate Makefiles for us!
+# These files will have .d instead of .o as the output.
+CPPFLAGS := $(INC_FLAGS) -MMD -MP
+
+# The final build step.
+$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
+	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
+
+# Build step for C source
+$(BUILD_DIR)/%.c.o: %.c
+	mkdir -p $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+# Build step for C++ source
+$(BUILD_DIR)/%.cpp.o: %.cpp
+	mkdir -p $(dir $@)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+
+.PHONY: clean
+clean:
+	rm -r $(BUILD_DIR)
+
+# Include the .d makefiles. The - at the front suppresses the errors of missing
+# Makefiles. Initially, all the .d files will be missing, and we don't want those
+# errors to show up.
+-include $(DEPS)
+```
 
 ---
 
