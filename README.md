@@ -1421,7 +1421,7 @@ Current Date: 2023-09-11
 
 > *Note: The specific date will depend on when you run the make command.*
 
-## Other
+## OTHER
 
 #### INCLUDE
 
@@ -1452,11 +1452,11 @@ VPATH := src:lib
 # Compile all .c files into object files
 %.o: %.c
 	gcc -c $(addprefix $(VPATH)/,$<) -o $@
-	
+
 # Build the final executable
 my_program: main.o util.o
 	gcc $^ -o $@
-	
+
 clean:
 	rm -f *.o my_program
 
@@ -1498,7 +1498,7 @@ test:
 
 # Documentation target: Generate documentation
 doc:
-	doxygen Doxyfile
+	doxygen Doxyfile	
 ```
 
 By marking these targets as `.PHONY`, you ensure that Make will always execute the associated actions, even if files with the same names as the targets exist in the directory. 
@@ -1521,7 +1521,7 @@ To use the `.DELETE_ON_ERROR` special target in a Makefile, you don't need to sp
 
 # Rule to compile a C source file into an object file
 %.o: %.c
-	gcc -c $< -o $@
+  gcc -c $< -o $@
 	
 # Rule to build the final executable
 my_program: main.o util.o
@@ -1529,7 +1529,7 @@ my_program: main.o util.o
 	
 clean:
 	rm -f *.o my_program
-	```
+```
 
 With `.DELETE_ON_ERROR` enabled, if the compilation of any `.c` file fails (e.g., due to a syntax error), Make will delete the corresponding `.o` file to ensure that the build remains in a consistent state. This can help prevent issues where a partially updated target could lead to unexpected behavior.
 
@@ -1546,7 +1546,7 @@ CFLAGS := -Wall -O2
 
 # 2. Targets and Dependencies
 my_program: main.o util.o
-	$(CC) $^ -o $@
+	$(CC) $^ -o $@	
 
 main.o: main.c
 	$(CC) $(CFLAGS) -c $< -o $@
