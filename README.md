@@ -1133,7 +1133,7 @@ clean:
 
 # A custom function named get_compiler_flagsis defined using the define keyword.
 # This function takes a file name as an argument and sets the FLAGS variable with 
-compiler flags based on whether the file name contains file1.c.
+# compiler flags based on whether the file name contains file1.c.
 # If it does, it sets -Wall -O2 as flags; otherwise, it sets -Wall -O0 as flags.
 ```
 
@@ -1254,7 +1254,7 @@ all:
   @echo "Object Files: $(OBJ_FILES)"
 
 # We use the $(patsubst) function to replace the .c extension with .o
-to obtain the list of object files (OBJ_FILES).
+# to obtain the list of object files (OBJ_FILES).
 ```
 
 When you run `make`, it will display the following output:
@@ -1294,7 +1294,7 @@ all:
 
 # We use the $(foreach) function to iterate over each source file (src) in SRC_FILES.
 # Inside the iteration, we use $(basename) to remove the file extension from each source file 
-and generate a list of target names (TARGETS).
+# and generate a list of target names (TARGETS).
 ```
 
 When you run make, it will display the following output:
@@ -1410,7 +1410,7 @@ all:
 to retrieve the current date in the "YYYY-MM-DD" format.
 
 # We use the $(shell) function to execute the $(DATE_COMMAND) command 
-and capture its output in the CURRENT_DATE variable.
+# and capture its output in the CURRENT_DATE variable.
 ```
 
 When you run `make`, it will display the following output:
@@ -1544,7 +1544,7 @@ SRC_DIRS := ./src
 
 # Find all the C and C++ files we want to compile
 # Note the single quotes around the * expressions. 
-# The shell will incorrectly expand these otherwise, but we want to send the * directly to the find command.
+# The shell will incorrectly expand these otherwise, but we want to send the * directly to the find command
 SRCS := $(shell find $(SRC_DIRS) -name '*.cpp' -or -name '*.c' -or -name '*.s')
 
 # Prepends BUILD_DIR and appends .o to every src file
