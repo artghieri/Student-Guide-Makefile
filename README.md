@@ -8,7 +8,7 @@ Let's tackle this challenging subject together and put an end to the confusion o
 
 ---
 
-## A First Look To MakeFiles
+## The History of Makefiles
 
 **Makefiles** originated in the late 1970s as a solution for ***automating software compilation*** on ***Unix systems***. They were invented by ***Stuart Feldman*** at **Bell Labs**. These files enabled developers to define *rules* and *dependencies*, streamlining the build process and improving *software development efficiency*. Over time, **Makefiles** expanded beyond ***Unix*** and became a crucial tool in software development, ensuring reliable and automated builds. **Today, they remain a cornerstone of modern software engineering practices.**
 
@@ -67,7 +67,7 @@ These are variations of Make that are not based on the **GNU Make** utility. Exa
 
 The choice of Makefile version and type depends on the project's requirements, the development environment, and personal preferences. 
 
-### MakeFile Syntax
+### Syntax
 
 A **Makefile** consists of a set of rules. A rule generally looks like this:
 
@@ -85,7 +85,7 @@ targets: prerequisites
 > *Note: Makefiles **must** be indented using **TABs** and not spaces.*
 
 
-### The Essence of Make
+### A First Look To Makefiles: Hello World
 
 ```makefile
 hello:
@@ -118,53 +118,26 @@ So, here's how the code works step by step:
 
 Make sure that you understand this. It's the **crux of Makefiles**, and might take you a few minutes to properly understand. 
 
-#### A Brief Example of How MakeFiles Work
+#### Makefiles in Practice
 
 ```makefile
-blah: blah.o
-    cc blah.o -o blah  # Runs third
-
-blah.o: blah.c
-    cc -c blah.c -o blah.o  # Runs second
-
-blah.c:
-    echo "int main() { return 0; }" > blah.c  # Runs first
-```
-
-When you run `make` in the terminal, it will build a program called **blah** in a series of steps:
-
-```makefile
-black.c:
-
-# This line defines a target named blah.c. It's used to specify that the blah.c file should be generated.
-```
-
-```makefile
-echo "int main() { return 0; }" > blah.c
-
-# This line is the command associated with the blah.c target.
-# When this is executed, it runs the echo command to create a C source file blah.c with a main function.
-```
-
-```makefile
-blah.o: blah.c:
-
-# This line defines a target named blah.o.
-# It indicates that the blah.o object file depends on the blah.c source file.
-```
-
-```makefile
-cc -c blah.c -o blah.o
-
-# This line is the command associated with the blah.o target.
-# It compiles the blah.c source file into an object file blah.o using the cc compiler.
-```
-
-```makefile
-blah: blah.o:
-
 # This line defines a target named blah, which depends on the blah.o target.
 # It specifies the rule to build the final executable blah by linking the blah.o object file.
+blah: blah.o
+  gcc blah.o -o blah  # Runs third
+	
+# This line defines a target named blah.o.
+# It indicates that the blah.o object file depends on the blah.c source file.
+blah.o: blah.c
+  # This line is the command associated with the blah.o target.
+  # It compiles the blah.c source file into an object file blah.o using the cc compiler.
+  gcc -c blah.c -o blah.o  # Runs second
+	
+# This line defines a target named blah.c. It's used to specify that the blah.c file should be generated.
+blah.c:
+  # This line is the command associated with the blah.c target.
+  # When this is executed, it runs the echo command to create a C source file blah.c with a main function.
+  echo "int main() { return 0; }" > blah.c  # Runs first
 ```
 
 In summary, this is what happens when you run make:
@@ -175,8 +148,8 @@ In summary, this is what happens when you run make:
 
 This is just a simple example of using a Makefile. Take your time to fully understand it before proceeding to future topics.
 
-> *Note: cc It's a command that invokes the C compiler.*  
-> *Note: -c This flag tells the compiler to compile the source code into an object file without linking it to create an executable.*
+> *Note: gcc It's a command that invokes the C compiler.*  
+> *Note: -c flag tells the compiler to compile the source code into an object file without linking it to create an executable.*
 
 
 ### Make Clean
@@ -204,7 +177,7 @@ This command ensures a clean and organized project directory, making it easier t
 
 In **Make**, *Targets* are defined tasks in a **Makefile** representing specific build objectives. These objectives can include compiling source code, linking binaries, or other project-related actions. **Make** uses these targets to automate the build process by managing dependencies and executing tasks as efficiently as possible.
 
-### The All Target
+### All Target
 
 The `all` target in a **Makefile** is a special target used to build multiple components or perform various tasks with a single `make` command. It enhances the efficiency of the build process by specifying a list of other targets to be built.
 
@@ -411,8 +384,8 @@ The provided example showcases a Makefile for automating the build process of a 
 Static Pattern Rules in **Makefiles** allow you to define rules for building multiple target patterns from corresponding prerequisite patterns in a concise manner. These rules provide a powerful way to manage dependencies and automate the build process for similar files with distinct names.
 
 ```makefile
-targets...: target-pattern: prerequisite-patterns...
-  recipe  
+targets...: target-pattern: prerequisites...
+    commands
 ```
 
 The essence is that the given ***target*** is matched by the ***target-pattern*** (via a `% wildcard`). Whatever was matched is called the stem. The stem is then substituted into the ***prereq-pattern***, to generate the target's prereqs.
@@ -420,12 +393,12 @@ The essence is that the given ***target*** is matched by the ***target-pattern**
 Here's an illustration of Static Pattern Rules in action:
 
 ```makefile
-# Build all .o files from .c files in the src/ directory
-%.o: src/%.c
-  $(CC) -c $(CFLAGS) $< -o $@
+# Makefile that builds multiple object files from corresponding source files
+objects: %.o: %.c
+    gcc -c $< -o $@
 ```
 
-In this example, the static pattern rule compiles all `.c` files in the `src/` directory into corresponding `.o` files using the specified compiler and flags.
+In this example, the Static Pattern Rule tells Make how to build object files `%.o` from corresponding C source files `%.c` using the `gcc` compiler.
 
 #### Static Pattern Rules and Filter
 
@@ -450,8 +423,8 @@ In this example, Static Pattern Rules simplify compiling `.c` files to `.o` file
 Pattern rules provide a mechanism for automating build processes by defining generic rules for transforming files. They are essential for managing dependencies and streamlining compilation tasks.
 
 ```makefile
-targets...: target-pattern: prerequisite-patterns...
-  recipe  
+%.target: %.dependencies
+    commands
 ```
 
 **Examples:**
@@ -995,7 +968,7 @@ In this example:
 
 - The `$(TARGET)` rule compiles the program using the specified `CFLAGS` based on the `BUILD_TYPE`.
 
-### Check if A Variable is Empty
+### Empty Strings
 
 In **GNU Make**, checking whether a string is empty or not is a common operation that can be useful in various situations within your Makefile. An empty string is one that contains no characters or is considered as whitespace-only.
 
