@@ -886,7 +886,7 @@ pattern%: variable := value
   $(CC) $(CFLAGS) -o $@ $<
 ```
 
-> *Note: n this example, the % sign in the pattern rule %.o matches any target ending with .o. We set a pattern-specific value for CFLAGS to enable optimization (-O2) for object files. When a target like main.o or utils.o is built, it will use the specified CFLAGS value for optimization.*
+> *Note: In this example, the % sign in the pattern rule %.o matches any target ending with .o. We set a pattern-specific value for CFLAGS to enable optimization (-O2) for object files. When a target like main.o or utils.o is built, it will use the specified CFLAGS value for optimization.*
 
 ## Conditional Statements
 
